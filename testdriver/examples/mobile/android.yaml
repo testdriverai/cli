@@ -1,0 +1,66 @@
+version: 6.0.0
+session: 685c63558f43d1527c84d053
+steps:
+  # Start the instance and install APK
+  - prompt: Download and Start APK
+    commands:
+      - command: exec
+        lang: pwsh
+        code: |
+          # Authenticate Gmsaas 
+          gmsaas auth token ${TD_GENYMOTION_KEY}
+          gmsaas config set android-sdk-path C:\Android
+
+          # Start instance, with name 'td'
+          $instance=$(gmsaas instances start 3990323a-1e9a-49df-ad87-6947f7fc166e td)
+          gmsaas instances adbconnect $instance
+
+          # Save Instance ID
+          $instance | Out-File -FilePath C:\instance_id
+
+          # Get Display Link
+          gmsaas instances display -y $instance
+          $clipboard = Get-Clipboard
+          $escapedUrl = '"' + $clipboard + '"'
+
+          # Open Chrome to Emulator
+          Start-Process 'C:/Program Files/Google/Chrome/Application/chrome.exe' -ArgumentList '--start-maximized',$escapedUrl
+
+      - command: exec
+        lang: pwsh
+        code: |
+          # Download +install APK
+          $apk_url = "https://dw.uptodown.net/dwn/RvVkii134Riphftvun7hQBZyU0aCwJjJMFI3FD3XyiR2-IJpuBWXadWSW1IBDH4us2x6lZT5CFGPXN-mCE8iXmUtEDZX9EcgP0ZDVFNBjF-6Esb49ktjva0lneLIgN0q/sfVkgNUCoq4pyIjN4Kgq_eLeFsdl17qphwZPltH0KDQ0MhaRZ2f14JU9eNL-NzInogYsiMKSi1Hi3i8dJlO7LeLBT-trJq_waAWMe6dxM0axtzM5XxyFcXrXKVvIdcVC/Qq5DSToc1YivIME2j6y0fjMcKHol6T4Zl8LeQs4lcgR4o0I_RP7IK0hUJuC_Le8U/todo-2-3-4.apk"
+          Invoke-WebRequest -Uri "$apk_url" -OutFile "C:\app.apk"
+          adb install C:\app.apk
+
+          # Get Package name
+          $output = & 'C:\Android\build-tools\36.0.0\aapt.exe' dump badging C:\app.apk
+          $package = ($output | Select-String "package: name='([^']+)'" ).Matches.Groups[1].Value
+
+          # Launch Application
+          adb shell monkey -p $package -c android.intent.category.LAUNCHER 1
+
+      # Make Sure Window is open
+      - command: wait-for-text
+        text: gmsaas
+        timeout: 60000
+
+  - prompt: assert app opens
+    commands:
+      - command: assert
+        expect: The Todo App is open
+
+      - command: hover-text
+        action: click
+        text: "click anywhere"
+        description: Label that describes to click anywhere
+
+  - prompt: Stop the Android Instance
+    commands:
+      - command: exec
+        lang: pwsh
+        code: |
+          $instance = Get-Content -Path C:\instance_id -Raw
+
+          gmsaas instances stop $instance
