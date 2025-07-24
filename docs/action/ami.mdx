@@ -1,0 +1,95 @@
+---
+title: "Customizing the VM Image"
+sidebarTitle: "Custom VM Image"
+description: "How customize the TestDriver VM Image for robust test execution."
+icon: "image"
+---
+
+<Tip>
+  This guide is specifically for **Enterprise Plan customers** who have access
+  to the shared TestDriver AMI. If you are on a different plan, please contact
+  your account manager for more information.
+</Tip>
+
+<Steps>
+  <Step title="Send Us Your AWS Account ID">
+    To begin, send your **12-digit AWS account ID** to your **TestDriver account manager**. We'll share the AMI directly with your AWS account using [Amazon's explicit AMI sharing process](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/sharingamis-explicit.html).
+  </Step>
+
+<Step title="Wait for Confirmation">
+  Your account manager will notify you when the AMI has been shared with your
+  account. You will receive the **AMI ID** (e.g., `ami-0abcd1234efgh5678`).
+</Step>
+
+  <Step title="Launch and Connect with RDP">
+    Once you have the AMI ID, launch an EC2 instance and connect via RDP:
+
+    1. Ensure your **security group allows RDP (TCP port 3389)**.
+    2. In the EC2 Console, select your instance → **Connect > RDP Client**.
+    3. Download the `.rdp` file or copy the public IP to open manually in your RDP client.
+    4. Retrieve the **Administrator password** via the EC2 console and your key pair.
+
+    <Note>You will access a full Windows desktop where TestDriver is pre-installed and ready for customization.</Note>
+
+  </Step>
+
+  <Step title="Customize the Instance">
+    Inside the Windows desktop environment:
+
+    1. **Download and install your application** using a browser, Git, PowerShell, or other tools.
+    2. Add any required system configuration, environment variables, or startup scripts.
+    3. Verify the full setup works correctly in the sandbox.
+
+    Common use cases:
+    - Pull from GitHub or your artifact store
+    - Configure your app with test credentials or environment variables
+    - Enable logging or install monitoring tools
+
+  </Step>
+
+  <Step title="Create Your Custom AMI">
+    Once your customizations are complete, create an AMI from your instance:
+
+    1. In the EC2 Console, select your customized instance.
+    2. Go to **Actions** → **Image and templates** → **Create image**.
+    3. Provide a descriptive **Image name** and **Description**.
+    4. Click **Create image** to start the AMI creation process.
+    5. Wait for the AMI status to change from "pending" to "available".
+
+    <Note>The AMI creation process may take several minutes depending on the instance size and customizations.</Note>
+
+  </Step>
+
+  <Step title="Share Your AMI and Use with TestDriver CLI">
+    After creating your custom AMI:
+
+    1. **Share the AMI ID** with your **TestDriver account manager** so we can launch it in our infrastructure. Follow [Amazon's explicit AMI sharing process](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/sharingamis-explicit.html) if needed.
+    2. Once confirmed, you can reference the AMI directly from your machine using the TestDriver CLI:
+
+    ```bash
+    testdriverai --sandbox-ami=ami-0abcd1234efgh5678
+    ```
+
+    This instructs the CLI to launch a sandbox using **your customized AMI**, enabling test execution in your environment.
+
+  </Step>
+</Steps>
+
+---
+
+## 🔐 Best Practices & Security
+
+- Always use **strong RDP passwords** and keep your key pairs secure.
+- Apply **Windows Updates** to stay current with patches.
+- Use **IAM roles with least privilege** to access other AWS resources.
+- Consider **encrypting your volumes and AMI** if handling sensitive data.
+
+---
+
+### 🤝 Need Help?
+
+Your TestDriver account manager is available to support you with:
+
+- AMI access and customization
+- CLI configuration
+- Troubleshooting sandbox execution

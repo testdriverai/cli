@@ -69,8 +69,7 @@
               "/getting-started/generating",
               "/getting-started/running",
               "/getting-started/ci",
-              "/getting-started/editing",
-              "/overview/upgrading"
+              "/getting-started/editing"
             ]
           },
           {
@@ -95,7 +94,8 @@
               "/action/output",
               "/action/performance",
               "/action/pre-post-scripts",
-              "/action/secrets"
+              "/action/secrets",
+              "/action/ami"
             ]
           }
         ]

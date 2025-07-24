@@ -48,6 +48,12 @@ function createCommandDefinitions(agent) {
             "Create a new sandbox instead of reconnecting to an existing one",
           default: false,
         }),
+        "sandbox-ami": Flags.string({
+          description: "Specify AMI ID for sandbox instance (e.g., ami-1234)",
+        }),
+        "sandbox-instance": Flags.string({
+          description: "Specify EC2 instance type for sandbox (e.g., i3.metal)",
+        }),
         summary: Flags.string({
           description: "Specify output file for summarize results",
         }),
@@ -85,6 +91,12 @@ function createCommandDefinitions(agent) {
           description:
             "Create a new sandbox instead of reconnecting to an existing one",
           default: false,
+        }),
+        "sandbox-ami": Flags.string({
+          description: "Specify AMI ID for sandbox instance (e.g., ami-1234)",
+        }),
+        "sandbox-instance": Flags.string({
+          description: "Specify EC2 instance type for sandbox (e.g., i3.metal)",
         }),
         summary: Flags.string({
           description: "Specify output file for summarize results",

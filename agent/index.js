@@ -66,7 +66,9 @@ class TestDriverAgent extends EventEmitter2 {
     this.resultFile = flags.resultFile || null;
     this.newSandbox = flags.newSandbox || false;
     this.healMode = flags.healMode || flags.heal || false;
-    this.sandboxId = flags.sandboxId || null;
+    this.sandboxId = flags["sandbox-id"] || null;
+    this.sandboxAmi = flags["sandbox-ami"] || null;
+    this.sandboxInstance = flags["sandbox-instance"] || null;
     this.workingDir = flags.workingDir || process.cwd();
 
     // Resolve thisFile to absolute path with proper extension
@@ -1323,6 +1325,7 @@ ${regression}
       os.homedir(),
       ".testdriverai-last-sandbox",
     );
+
     if (fs.existsSync(lastSandboxFile)) {
       try {
         const stats = fs.statSync(lastSandboxFile);
@@ -1330,11 +1333,32 @@ ${regression}
         const now = new Date();
         const diffMinutes = (now - mtime) / (1000 * 60);
         if (diffMinutes < 30) {
-          const lastSandboxId = fs
-            .readFileSync(lastSandboxFile, "utf-8")
-            .trim();
-          if (lastSandboxId) {
-            return lastSandboxId;
+          const fileContent = fs.readFileSync(lastSandboxFile, "utf-8").trim();
+
+          // Parse sandbox info (supports both old format and new format)
+          let sandboxInfo;
+          try {
+            sandboxInfo = JSON.parse(fileContent);
+          } catch {
+            return fileContent || null;
+          }
+
+          // Check if AMI and instance type match current requirements
+          const currentAmi = this.sandboxAmi || null;
+          const currentInstance = this.sandboxInstance || null;
+          const storedAmi = sandboxInfo.ami || null;
+          const storedInstance = sandboxInfo.instanceType || null;
+
+          if (currentAmi === storedAmi && currentInstance === storedInstance) {
+            return sandboxInfo.instanceId;
+          } else {
+            this.emitter.emit(
+              events.log.log,
+              theme.dim(
+                "Recent sandbox found but AMI/instance type doesn't match current requirements",
+              ),
+            );
+            return null;
           }
         }
       } catch {
@@ -1350,7 +1374,15 @@ ${regression}
       ".testdriverai-last-sandbox",
     );
     try {
-      fs.writeFileSync(lastSandboxFile, instanceId, { encoding: "utf-8" });
+      const sandboxInfo = {
+        instanceId: instanceId,
+        ami: this.sandboxAmi || null,
+        instanceType: this.sandboxInstance || null,
+        timestamp: new Date().toISOString(),
+      };
+      fs.writeFileSync(lastSandboxFile, JSON.stringify(sandboxInfo), {
+        encoding: "utf-8",
+      });
     } catch {
       // ignore errors
     }
@@ -1615,11 +1647,21 @@ ${regression}
   }
 
   async createNewSandbox() {
-    let instance = await this.sandbox.send({
+    const sandboxConfig = {
       type: "create",
       resolution: this.config.TD_RESOLUTION,
       ci: this.config.CI,
-    });
+    };
+
+    // Add AMI and instance type if specified
+    if (this.sandboxAmi) {
+      sandboxConfig.ami = this.sandboxAmi;
+    }
+    if (this.sandboxInstance) {
+      sandboxConfig.instanceType = this.sandboxInstance;
+    }
+
+    let instance = await this.sandbox.send(sandboxConfig);
     return instance;
   }
 
