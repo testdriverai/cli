@@ -1,9 +1,9 @@
-const { eventsArray, getEmitter } = require("../events.js");
+const { eventsArray } = require("../events.js");
 const { startDebugger, broadcastEvent } = require("./debugger-server.js");
 
-module.exports.createDebuggerProcess = (config = {}) => {
+module.exports.createDebuggerProcess = (config = {}, emitter) => {
   // Start the web server-based debugger instead of Electron
-  return startDebugger(config)
+  return startDebugger(config, emitter)
     .then(({ url }) => {
       // Return a mock process object to maintain compatibility
       return {
@@ -26,11 +26,10 @@ module.exports.createDebuggerProcess = (config = {}) => {
     });
 };
 
-module.exports.connectToDebugger = () => {
+module.exports.connectToDebugger = (emitter) => {
   return new Promise((resolve, reject) => {
     // Set up event broadcasting instead of IPC
     try {
-      const emitter = getEmitter();
       eventsArray.forEach((event) => {
         emitter.on(event, (data) => {
           broadcastEvent(event, data);

@@ -105,8 +105,8 @@ class TestDriverAgent extends EventEmitter2 {
     // Create sandbox instance with this agent's emitter
     this.sandbox = createSandbox(this.emitter);
 
-    // Create system instance with sandbox and config
-    this.system = createSystem(this.sandbox, this.config);
+    // Create system instance with sandbox, config, and emitter
+    this.system = createSystem(this.sandbox, this.config, this.emitter);
 
     // Create commands instance with this agent's emitter and system
     const commandsResult = createCommands(

@@ -3,19 +3,128 @@ const fs = require("fs");
 const os = require("os");
 const path = require("path");
 const Jimp = require("jimp");
-const { getEmitter, events } = require("../events.js");
+const { events } = require("../events.js");
 
-const createSystem = (sandbox, config) => {
-  const screenshot = async (options) => {
-    let { base64 } = await sandbox.send({ type: "system.screenshot" });
+const createSystem = (sandbox, config, emitter) => {
+  const screenshot = async (options, retryCount = 3) => {
+    const maxRetries = retryCount;
+    let lastError = null;
 
-    if (!base64) {
-      console.error("Failed to take screenshot");
-    } else {
-      let image = Buffer.from(base64, "base64");
-      fs.writeFileSync(options.filename, image);
-      return { filename: options.filename };
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        emitter.emit(events.log.debug, {
+          message: `Taking screenshot to ${options.filename} (attempt ${attempt}/${maxRetries})`,
+          data: { filename: options.filename, attempt, maxRetries },
+        });
+
+        emitter.emit(events.sandbox.sent, {
+          message: "Sending screenshot request to sandbox",
+          data: {
+            type: "system.screenshot",
+            filename: options.filename,
+            attempt,
+          },
+        });
+
+        let { base64 } = await sandbox.send({ type: "system.screenshot" });
+
+        emitter.emit(events.sandbox.received, {
+          message: "Received screenshot response from sandbox",
+          data: {
+            type: "system.screenshot",
+            filename: options.filename,
+            hasBase64: !!base64,
+            base64Length: base64 ? base64.length : 0,
+            attempt,
+          },
+        });
+
+        if (!base64) {
+          const errorMsg =
+            "Failed to take screenshot - no base64 data received from sandbox";
+
+          if (attempt === maxRetries) {
+            emitter.emit(events.error.general, {
+              message: errorMsg,
+              data: {
+                filename: options.filename,
+                type: "screenshot",
+                finalAttempt: true,
+              },
+            });
+            emitter.emit(events.log.warn, {
+              message: errorMsg,
+              data: { filename: options.filename, finalAttempt: true },
+            });
+            throw new Error(errorMsg);
+          } else {
+            emitter.emit(events.log.warn, {
+              message: `${errorMsg} - retrying in ${attempt * 1000}ms (attempt ${attempt}/${maxRetries})`,
+              data: { filename: options.filename, attempt, willRetry: true },
+            });
+
+            // Exponential backoff: wait 1s, 2s, 3s, etc.
+            await new Promise((resolve) => setTimeout(resolve, attempt * 1000));
+            continue;
+          }
+        } else {
+          let image = Buffer.from(base64, "base64");
+          fs.writeFileSync(options.filename, image);
+
+          emitter.emit(events.log.debug, {
+            message: `Screenshot saved successfully to ${options.filename}${attempt > 1 ? ` (succeeded on attempt ${attempt})` : ""}`,
+            data: {
+              filename: options.filename,
+              size: image.length,
+              attempt,
+              succeededAfterRetries: attempt > 1,
+            },
+          });
+
+          return { filename: options.filename };
+        }
+      } catch (error) {
+        lastError = error;
+
+        if (attempt === maxRetries) {
+          const errorMsg = `Screenshot operation failed after ${maxRetries} attempts: ${error.message}`;
+          emitter.emit(events.error.general, {
+            message: errorMsg,
+            error: error,
+            data: {
+              filename: options?.filename,
+              type: "screenshot",
+              attempts: maxRetries,
+            },
+          });
+          emitter.emit(events.log.warn, {
+            message: errorMsg,
+            data: {
+              filename: options?.filename,
+              error: error.message,
+              attempts: maxRetries,
+            },
+          });
+          throw error;
+        } else {
+          emitter.emit(events.log.warn, {
+            message: `Screenshot attempt ${attempt} failed: ${error.message} - retrying in ${attempt * 1000}ms`,
+            data: {
+              filename: options?.filename,
+              error: error.message,
+              attempt,
+              willRetry: true,
+            },
+          });
+
+          // Exponential backoff: wait 1s, 2s, 3s, etc.
+          await new Promise((resolve) => setTimeout(resolve, attempt * 1000));
+        }
+      }
     }
+
+    // This should never be reached, but just in case
+    throw lastError || new Error("Screenshot failed for unknown reason");
   };
 
   let primaryDisplay = null;
@@ -35,7 +144,7 @@ const createSystem = (sandbox, config) => {
   const captureAndResize = async (scale = 1, silent = false, mouse = false) => {
     try {
       if (!silent) {
-        getEmitter().emit(events.screenCapture.start, {
+        emitter.emit(events.screenCapture.start, {
           scale,
           silent,
           display: primaryDisplay,
@@ -70,7 +179,7 @@ const createSystem = (sandbox, config) => {
 
       await image.writeAsync(step2);
 
-      getEmitter().emit(events.screenCapture.end, {
+      emitter.emit(events.screenCapture.end, {
         scale,
         silent,
         display: primaryDisplay,
@@ -78,7 +187,7 @@ const createSystem = (sandbox, config) => {
 
       return step2;
     } catch (error) {
-      getEmitter().emit(events.screenCapture.error, {
+      emitter.emit(events.screenCapture.error, {
         error,
         scale,
         silent,
