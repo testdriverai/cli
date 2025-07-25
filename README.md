@@ -6,7 +6,7 @@ Automate and scale QA with computer-use agents.
 
 [Docs](https://docs.testdriver.ai) | [Website](https://testdriver.ai) | [GitHub Action](https://github.com/marketplace/actions/testdriver-ai) | [Join our Discord](https://discord.com/invite/cWDFW8DzPm)
 
----https://github.com/user-attachments/assets/4719e834-652a-43ba-8b8c-24ea6f357ae3# Install via NPM
+# Install via NPM
 
 [Follow the instructions on our docs for more.](https://docs.testdriver.ai/overview/quickstart).
 
