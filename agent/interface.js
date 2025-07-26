@@ -51,12 +51,28 @@ function createCommandDefinitions(agent) {
         summary: Flags.string({
           description: "Specify output file for summarize results",
         }),
+        prerun: Flags.string({
+          description:
+            "File to run before the main test file. Can be the name of a file in the lifecycle folder, or an absolute path",
+          default: "prerun",
+        }),
+        postrun: Flags.string({
+          description:
+            "File to after before the main test file. This will run regardless of if the test passes. can be the name of a file in the lifecycle folder, or an absolute path",
+          default: "postrun",
+        }),
+        provision: Flags.string({
+          description:
+            "File to run when a new sandbox is provisioned. Can be the name of a file in the lifecycle folder, or an absolute path",
+          default: "provision",
+        }),
       },
       handler: async (args, flags) => {
         // Use --path flag if provided, otherwise fall back to args.file
         const file = normalizeFilePath(args.file);
 
-        await agent.runLifecycle("prerun");
+        await agent.runLifecycle(flags.prerun);
+
         // When run() is called through run.js CLI command, shouldExit should be true
         const shouldExit = agent.cliArgs?.command === "run";
         await agent.run(file, flags.write, shouldExit);
