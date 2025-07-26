@@ -1,7 +1,0 @@
-version: 6.0.0
-session: 6866cc8324d6f947a266fb82
-steps:
-  - prompt: assert the testdriver login page shows
-    commands:
-      - command: assert
-        expect: the TestDriver.ai Sandbox login page is displayed

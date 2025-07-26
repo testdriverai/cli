@@ -40,52 +40,68 @@ TestDriver isn't just a computer-use agent, it's an entire AI-native workflow fo
     </Tabs>
 
   </Step>
-  <Step title="Create your first test">
-    Create a new file called `testdriver/test.yaml`, and paste the following [YAML](/commands) code into it.
+  <Step title="Run an example test">
+      
+    Download the TestDriver GitHub repository and run the web example test.
+
+    ```bash
+    git clone https://github.com/testdriverai/cli testdriverai
+    cd testdriverai/testdriver/examples/web
+    npx testdriverai@beta run example.yaml --write --heal --persist
+    ```
+
+  </Step>
+  <Step title="Exploratory mode">
+    
+    TestDriver is running an "exploratory" test on a virtual machine.
+
+    TestDriver tests are written in YAML, a human-readable data format. The `example.yaml` file contains a series of steps that the agent will execute.
 
     ```yaml testdriver/test.yaml
     steps:
-      - prompt: Navigate to https://app.testdriver.ai
-      - prompt: Verify the login form is displayed
+        - prompt: log in
+        - prompt: add an item to the cart
+        - prompt: click on the cart icon
+        - prompt: complete checkout
     ```
 
-    This is the basic structure of a TestDriver test. Each `step` contains a `prompt` that describes what the agent should do.
+    Each step has a `prompt` that describes what the agent should do. The agent will use the prompt to generate [commands](/commands) that make the tests faster and more reliable the next time you run the test.
 
   </Step>
   <Step title="Run your first test">
 
-    When running a test, TestDriver will use the prompts to generate [command](/commands)s that control a virtual machine. Use the following command to run your test:
+    Exploratory mode is triggered whenever a `step` contains no `commands`.
 
-    ```bash
-    npx testdriverai@latest run testdriver/test.yaml --write --heal
-    ```
-
-    The `--write` flag will save generated commands to the test file, and the `--heal` flag will automatically fix any issues with the test.
-
-    After running the command, you should see commands generated for each step in the `testdriver/test.yaml` file. It will look something like this:
-
-    ```yaml testdriver/test.yaml {3-11, 13-15}
-    steps:
-    - prompt: Navigate to https://app.testdriver.ai
-      commands:
+    ```yaml
+      version: 5.7.7
+      session: 682f6071811bd5a322c0e6dd
+      steps:
+      - prompt: focus chrome
+        commands:
         - command: focus-application
           name: Google Chrome
-        - command: press-keys
-          keys: [ctrl, l]
+      - prompt: enter a username
+        commands:
+        - command: hover-text
+          text: Username
+          description: username input field
+          action: click
         - command: type
-          text: https://app.testdriver.ai
-        - command: press-keys
-          keys: [enter]
-    - prompt: Verify the login form is displayed
-      commands:
-        - command: assert
-          expect: The login form is displayed
-    ```
+          text: standard_user
+      - prompt: enter a password
+        commands:
+        - command: hover-text
+          text: Password
+          description: password input field
+          action: click
+        - command: type
+          text: secret_password
+      ```
 
-    This increases both speed and reliability, TestDriver will use the saved commands to execute the steps the next time you run the test.
+      The `--write` command tells the agent to save the generated commands to the test file, and the `--heal` command gives the agent permission to recover if something goes wrong.
 
   </Step>
 </Steps>
 
 <Comments />
-````
+```

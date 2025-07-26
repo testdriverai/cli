@@ -1,0 +1,11 @@
+version: 6.0.6
+session: 68802585674639688175d870
+steps:
+  - prompt: log in
+    commands:
+      - command: focus-application
+        name: Google Chrome
+      - command: hover-text
+        text: Username
+        description: Username label above the first input field
+        action: click

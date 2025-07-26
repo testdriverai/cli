@@ -5,7 +5,55 @@ steps:
     commands:
       - command: exec
         lang: pwsh
-        code: dashcam track --name=TestDriver --type=application --pattern="C:\Users\testdriver\Documents\testdriver.log"
+        code: |
+          Write-Host "Initializing new npm project..."
+
+          cd $env:TEMP
+          Write-Host "Changed directory to TEMP: $env:TEMP"
+
+          Write-Host "Running 'npm init -y'..."
+          npm init -y
+
+          Write-Host "Installing dependencies: @puppeteer/browsers and dashcam-chrome..."
+          npm install @puppeteer/browsers dashcam-chrome
+
+          Write-Host "Installing Chromium via '@puppeteer/browsers'..."
+          npx @puppeteer/browsers install chrome
+
+          # Define paths
+          $extensionPath = Join-Path (Get-Location) "node_modules/dashcam-chrome/build"
+          $profilePath = Join-Path $env:TEMP "chrome-profile-$(Get-Random)"
+
+          Write-Host "Extension path: $extensionPath"
+          Write-Host "Chrome user data dir: $profilePath"
+
+          # Validate extension path
+          if (-not (Test-Path $extensionPath)) {
+              Write-Host "Extension not found at $extensionPath"
+          }
+
+          $chromeArgs = @(
+            "--start-maximized",
+            "--load-extension=$extensionPath",
+            "--user-data-dir=$profilePath",
+            "--no-first-run",
+            "--no-default-browser-check",
+            "--disable-infobars"
+            "${TD_WEBSITE}"
+          ) -join ' '
+
+          Start-Process "cmd.exe" -ArgumentList "/c", "npx @puppeteer/browsers launch chrome -- $chromeArgs"
+
+          Write-Host "Script complete."
+          exit
+      - command: wait-for-text
+        text: ${TD_WEBSITE}
+        timeout: 60000
+      - command: exec
+        lang: pwsh
+        code: |
+          dashcam track --name="Web Logs" --type="web" --pattern="*"
+          dashcam track --name=TestDriver --type=application --pattern="C:\Users\testdriver\Documents\testdriver.log"
       - command: exec
         lang: pwsh
         code: dashcam start
