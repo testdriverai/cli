@@ -99,8 +99,8 @@ class TestDriverAgent extends EventEmitter2 {
     // Create analytics instance with this agent's emitter, config, and session
     this.analytics = createAnalytics(this.emitter, this.config, this.session);
 
-    // Create sandbox instance with this agent's emitter
-    this.sandbox = createSandbox(this.emitter);
+    // Create sandbox instance with this agent's emitter and analytics
+    this.sandbox = createSandbox(this.emitter, this.analytics);
 
     // Create system instance with emitter, sandbox and config
     this.system = createSystem(this.emitter, this.sandbox, this.config);
