@@ -1,0 +1,62 @@
+version: 6.0.10
+session: 68816f4d1110f3a8e19d7497
+steps:
+  - prompt: download and install docker
+    commands:
+      - command: exec
+        lang: pwsh
+        timeout: 300000
+        code: >
+          # Install Docker Desktop using Chocolatey with timeout
+
+          Write-Output "Installing Docker Desktop via Chocolatey..."
+
+          $job = Start-Job -ScriptBlock { choco install docker-desktop -y
+          --timeout 240 }
+
+          Wait-Job $job -Timeout 240
+
+          if ($job.State -eq "Running") {
+            Stop-Job $job
+            Write-Output "Installation timed out, but Docker may still be installing in background"
+          } else {
+            Receive-Job $job
+          }
+
+          Remove-Job $job
+      - command: exec
+        lang: pwsh
+        code: |
+          # Launch Docker Desktop
+          Write-Output "Launching Docker Desktop..."
+          Start-Process "C:\Program Files\Docker\Docker\Docker Desktop.exe"
+  - prompt: click on accept
+    commands:
+      - command: hover-text
+        text: Accept
+        description: >-
+          blue Accept button at the bottom right of the Docker Subscription
+          Service Agreement dialog
+        action: click
+  - prompt: click skip
+    commands:
+      - command: hover-text
+        text: Skip
+        description: Skip link in the upper right of the Welcome to Docker dialog
+        action: click
+  - prompt: click restart
+    commands:
+      - command: hover-text
+        text: Restart
+        description: >-
+          blue Restart button in the center of the Docker Desktop WSL needs
+          updating dialog
+        action: click
+  - prompt: click restart
+    commands:
+      - command: hover-text
+        text: Restart
+        description: >-
+          blue Restart button below the WSL needs updating message in the center
+          of the Docker Desktop window
+        action: click

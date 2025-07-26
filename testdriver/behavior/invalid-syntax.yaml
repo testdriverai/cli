@@ -1,0 +1,8 @@
+version: 6.0.0
+steps:
+  - prompt: poor mike
+    commands:
+      - command: hover-image
+        path: ../screenshots/shopping_cart.png
+        description: shopping cart icon next to the Cart text in the top right corner
+        action: click

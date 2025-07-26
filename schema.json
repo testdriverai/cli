@@ -1,6 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
+  "additionalProperties": false,
   "properties": {
     "version": {
       "type": "string",
@@ -15,6 +16,7 @@
       "description": "An array of test steps.",
       "items": {
         "type": "object",
+        "additionalProperties": false,
         "properties": {
           "prompt": {
             "type": "string",
@@ -44,7 +46,11 @@
                     }
                   },
                   "then": {
+                    "additionalProperties": false,
                     "properties": {
+                      "command": {
+                        "type": "string"
+                      },
                       "text": {
                         "type": [
                           "string",
@@ -69,7 +75,12 @@
                     }
                   },
                   "then": {
+                    "additionalProperties": false,
                     "properties": {
+
+                      "command": {
+                        "type": "string"
+                      },
                       "keys": {
                         "type": "array",
                         "contains": {
@@ -287,7 +298,12 @@
                     }
                   },
                   "then": {
+                    "additionalProperties": false,
                     "properties": {
+
+                      "command": {
+                        "type": "string"
+                      },
                       "direction": {
                         "type": "string",
                         "enum": [
@@ -322,6 +338,7 @@
                     }
                   },
                   "then": {
+                    "additionalProperties": false,
                     "properties": {
                       "timeout": {
                         "type": "integer"
@@ -341,7 +358,12 @@
                     }
                   },
                   "then": {
+                    "additionalProperties": false,
                     "properties": {
+
+                      "command": {
+                        "type": "string"
+                      },
                       "x": {
                         "type": "integer"
                       },
@@ -376,7 +398,12 @@
                     }
                   },
                   "then": {
+                    "additionalProperties": false,
                     "properties": {
+
+                      "command": {
+                        "type": "string"
+                      },
                       "x": {
                         "type": "integer"
                       },
@@ -399,7 +426,12 @@
                     }
                   },
                   "then": {
+                    "additionalProperties": false,
                     "properties": {
+
+                      "command": {
+                        "type": "string"
+                      },
                       "x": {
                         "type": "integer"
                       },
@@ -422,7 +454,12 @@
                     }
                   },
                   "then": {
+                    "additionalProperties": false,
                     "properties": {
+
+                      "command": {
+                        "type": "string"
+                      },
                       "text": {
                         "type": "string"
                       },
@@ -464,7 +501,11 @@
                     }
                   },
                   "then": {
+  "additionalProperties": false,
                     "properties": {
+                      "command": {
+                        "type": "string"
+                      },
                       "description": {
                         "type": "string"
                       },
@@ -495,7 +536,12 @@
                     }
                   },
                   "then": {
+                    "additionalProperties": false,
                     "properties": {
+
+                      "command": {
+                        "type": "string"
+                      },
                       "path": {
                         "type": "string"
                       },
@@ -526,7 +572,12 @@
                     }
                   },
                   "then": {
+                    "additionalProperties": false,
                     "properties": {
+
+                      "command": {
+                        "type": "string"
+                      },
                       "description": {
                         "type": "string"
                       },
@@ -548,7 +599,12 @@
                     }
                   },
                   "then": {
+                    "additionalProperties": false,
                     "properties": {
+
+                      "command": {
+                        "type": "string"
+                      },
                       "text": {
                         "type": "string"
                       },
@@ -577,7 +633,12 @@
                     }
                   },
                   "then": {
+                    "additionalProperties": false,
                     "properties": {
+
+                      "command": {
+                        "type": "string"
+                      },
                       "text": {
                         "type": "string"
                       },
@@ -616,7 +677,12 @@
                     }
                   },
                   "then": {
+                    "additionalProperties": false,
                     "properties": {
+
+                      "command": {
+                        "type": "string"
+                      },
                       "description": {
                         "type": "string"
                       },
@@ -662,6 +728,7 @@
                     }
                   },
                   "then": {
+                    "additionalProperties": false,
                     "properties": {
                       "name": {
                         "type": "string"
@@ -681,7 +748,12 @@
                     }
                   },
                   "then": {
+                    "additionalProperties": false,
                     "properties": {
+
+                      "command": {
+                        "type": "string"
+                      },
                       "description": {
                         "type": "string"
                       },
@@ -704,7 +776,12 @@
                     }
                   },
                   "then": {
+                    "additionalProperties": false,
                     "properties": {
+
+                      "command": {
+                        "type": "string"
+                      },
                       "expect": {
                         "type": "string"
                       },
@@ -726,7 +803,12 @@
                     }
                   },
                   "then": {
+                    "additionalProperties": false,
                     "properties": {
+
+                      "command": {
+                        "type": "string"
+                      },
                       "lang": {
                         "type": "string",
                         "enum": [

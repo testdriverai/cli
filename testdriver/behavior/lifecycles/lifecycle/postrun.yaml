@@ -1,0 +1,8 @@
+version: 6.0.1-canary.4f31816.0
+session: 68767e31eb9cc3d8f639b8e0
+steps:
+  - prompt: "run"
+    commands:
+      - command: exec
+        lang: pwsh
+        code: Write-Output "postrun.yaml"
