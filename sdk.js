@@ -543,11 +543,11 @@ class Element {
         // cacheKey provided - enable cache with threshold
         // Per-command thresholds > legacy cacheThreshold > global config
         threshold = perCommandThresholds?.screen ?? cacheThreshold ?? this.sdk.cacheConfig?.thresholds?.find?.screen ?? 0.05;
-        elementSimilarity = perCommandThresholds?.element ?? this.sdk.cacheConfig?.thresholds?.find?.element ?? 0.8;
+        elementSimilarity = perCommandThresholds?.element ?? this.sdk.cacheConfig?.thresholds?.find?.element ?? 0.9;
       } else if (cacheThreshold !== null) {
         // Explicit threshold provided without cacheKey
         threshold = perCommandThresholds?.screen ?? cacheThreshold;
-        elementSimilarity = perCommandThresholds?.element ?? this.sdk.cacheConfig?.thresholds?.find?.element ?? 0.8;
+        elementSimilarity = perCommandThresholds?.element ?? this.sdk.cacheConfig?.thresholds?.find?.element ?? 0.9;
       } else {
         // No cacheKey, no explicit threshold - disable cache
         threshold = -1;
