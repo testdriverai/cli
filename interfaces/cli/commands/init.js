@@ -27,6 +27,12 @@ class InitCommand extends BaseCommand {
 
     console.log(chalk.cyan("\n🚀 Initializing TestDriver project...\n"));
 
+    await this.setupPackageJson();
+    await this.createVitestExample();
+    await this.createAgentDocs();
+    await this.createGitHubWorkflow();
+    await this.createGitignore();
+    await this.installDependencies();
     // Prompt for API key first
     const apiKey = await this.promptForApiKey();
 
@@ -398,7 +404,42 @@ class InitCommand extends BaseCommand {
   }
 
   /**
-   * Add an environment variable export to the user's shell profile
+   * Copy agent documentation files to agents directory
+   */
+  async createAgentDocs() {
+    const agentsDir = path.join(process.cwd(), "agents");
+    const testdriverDocPath = path.join(agentsDir, "testdriver.md");
+    const copilotDocPath = path.join(agentsDir, "copilot-instructions.md");
+    
+    // Find the source agents.mdx file in the package
+    const sourceDocPath = path.join(__dirname, "../../../docs/v7/_drafts/agents.mdx");
+    
+    if (!fs.existsSync(sourceDocPath)) {
+      console.log(chalk.yellow("  ⚠️  Agent documentation not found, skipping..."));
+      return;
+    }
+
+    // Create agents directory if it doesn't exist
+    if (!fs.existsSync(agentsDir)) {
+      fs.mkdirSync(agentsDir, { recursive: true });
+      console.log(chalk.gray(`  Created directory: ${agentsDir}`));
+    }
+
+    // Always copy to agents/testdriver.md
+    fs.copyFileSync(sourceDocPath, testdriverDocPath);
+    console.log(chalk.green(`  Created agent docs: ${testdriverDocPath}`));
+
+    // Copy to agents/copilot-instructions.md only if it doesn't exist
+    if (!fs.existsSync(copilotDocPath)) {
+      fs.copyFileSync(sourceDocPath, copilotDocPath);
+      console.log(chalk.green(`  Created agent docs: ${copilotDocPath}`));
+    } else {
+      console.log(chalk.gray("  agents/copilot-instructions.md already exists, skipping..."));
+    }
+  }
+
+  /**
+   * Create or update .gitignore to include .env
    */
   addToShellProfile(key, value) {
     if (process.platform === "win32") {
