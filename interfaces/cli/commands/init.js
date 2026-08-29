@@ -516,5 +516,6 @@ const commandDef = definitions["init"];
 InitCommand.description = commandDef?.description || "";
 InitCommand.args = commandDef?.args || {};
 InitCommand.flags = commandDef?.flags || {};
+InitCommand.strict = false; // Allow extra flags/args without throwing errors
 
 module.exports = InitCommand;
