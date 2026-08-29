@@ -702,34 +702,15 @@ function registerExitHandlers() {
     isExiting = true;
     isCancelling = true; // Mark that we're cancelling
 
-    // Temporarily override process.exit to prevent Vitest from exiting before we're done
-    const originalExit = process.exit;
-    let exitCalled = false;
-    let exitCode = 130;
-
-    process.exit = (code) => {
-      if (!exitCalled) {
-        exitCalled = true;
-        exitCode = code ?? 130;
-        logger.debug(
-          `process.exit(${exitCode}) called, waiting for cleanup...`,
-        );
-      }
-    };
-
     handleProcessExit()
       .then(() => {
         logger.debug("Cleanup completed successfully");
       })
       .catch((err) => {
         logger.error("Error during SIGINT cleanup:", err.message);
-      })
-      .finally(() => {
-        logger.debug(`Exiting with code ${exitCode}`);
-        // Restore and call original exit
-        process.exit = originalExit;
-        process.exit(exitCode);
       });
+    // Note: We don't call process.exit() here because Vitest 4+ patches it
+    // and will throw an error. Instead, we let the signal propagate naturally.
   });
 
   // Handle kill command
@@ -739,25 +720,15 @@ function registerExitHandlers() {
     isExiting = true;
     isCancelling = true;
 
-    const originalExit = process.exit;
-    let exitCode = 143;
-
-    process.exit = (code) => {
-      exitCode = code ?? 143;
-    };
-
     handleProcessExit()
       .then(() => {
         logger.debug("Cleanup completed successfully");
       })
       .catch((err) => {
         logger.error("Error during SIGTERM cleanup:", err.message);
-      })
-      .finally(() => {
-        logger.debug(`Exiting with code ${exitCode}`);
-        process.exit = originalExit;
-        process.exit(exitCode);
       });
+    // Note: We don't call process.exit() here because Vitest 4+ patches it
+    // and will throw an error. Instead, we let the signal propagate naturally.
   });
 }
 
