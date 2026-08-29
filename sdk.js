@@ -3291,8 +3291,8 @@ CAPTCHA_SOLVER_EOF`,
 
       if (event === events.log.debug && !debugMode) return;
       if (this.loggingEnabled && message) {
-        const prefixedMessage = this.testContext
-          ? `[${this.testContext}] ${message}`
+        const prefixedMessage = this.testFile
+          ? `[${this.testFile}] ${message}`
           : message;
         console.log(prefixedMessage);
       }
